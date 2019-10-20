@@ -1,0 +1,5 @@
+Index of <%= req.path %>
+<% files.each do |file| %>
+<%= file %>
+<% end %>
+<%= server.config[:ServerSoftware] %> Server at <%= req.header['host'].first %>
