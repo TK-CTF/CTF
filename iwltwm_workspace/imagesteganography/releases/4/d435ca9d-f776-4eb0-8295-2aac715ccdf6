@@ -1,0 +1,1108 @@
+'Main Form
+Imports System.IO
+Imports System.Security.Cryptography
+Public Class ImgSteg_Win
+
+    Dim ProgData As String = My.Computer.FileSystem.GetParentPath(My.Computer.FileSystem.SpecialDirectories.MyDocuments) & "\Application Data\CPascoe\Image Steganography\ProgData\"
+
+    WithEvents StegEng As New Steg_Engine
+    Dim Err_Handler As New Error_Logger(ProgData & "ImgSteg_ErrLog.txt", "Image Steganography", Me.ProductVersion)
+
+    Private Sub ImgSteg_Win_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        Decode_GB.Location = Encode_GB.Location
+    End Sub
+
+    Private Sub File_RB_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles File_RB.CheckedChanged
+        If File_RB.Checked Then
+            File_TB.Enabled = True
+            Text_RTB.Enabled = False
+        Else
+            File_TB.Enabled = False
+            Text_RTB.Enabled = True
+        End If
+    End Sub
+
+    Private Sub Encode_RB_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Encode_RB.CheckedChanged
+        If Encode_RB.Checked Then
+            Encode_GB.Visible = True
+        Else
+            Encode_GB.Visible = False
+        End If
+    End Sub
+
+    Private Sub Enlarge_RB_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Enlarge_RB.CheckedChanged
+        If Enlarge_RB.Checked Then
+            DImage2_TB.Enabled = False
+        Else
+            DImage2_TB.Enabled = True
+        End If
+    End Sub
+
+    Private Sub Start_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Start_Btn.Click
+        If Start_Btn.Text = "Start" Then
+            Dim Coding As Steg_Engine.Steg_Type
+
+            If Enlarge_RB.Checked Then
+                Coding = Steg_Engine.Steg_Type.Enlarge
+            Else
+                Coding = Steg_Engine.Steg_Type.Difference
+            End If
+
+            If Encode_RB.Checked Then
+                If File.Exists(EImage_TB.Text) Then
+                    If File_RB.Checked Then
+                        If File.Exists(File_TB.Text) Then
+                            If Not OutImg_TB.Text = "" Then
+                                Dim Data() As Byte = My.Computer.FileSystem.ReadAllBytes(File_TB.Text)
+                                Data = AddMetaData(My.Computer.FileSystem.GetName(File_TB.Text), Data)
+                                If Encrypt_CB.Checked Then
+                                    If LoginForm.ShowDialog = Windows.Forms.DialogResult.OK Then
+                                        Data = AESCryptByte(LoginForm.PasswordTextBox.Text, Data, True)
+                                    End If
+                                End If
+                                StegEng.Encode_Async(Data, Bitmap.FromFile(EImage_TB.Text), Coding, True)
+                                ChgState(True)
+                            Else
+                                MsgBox("Enter the output image location")
+                            End If
+                        Else
+                            MsgBox("Input file doesn't exist")
+                        End If
+                    Else
+                        If Not Text_RTB.Text = "" Then
+                            If Not OutImg_TB.Text = "" Then
+                                Dim Data() As Byte = TextToBytes(Text_RTB.Text)
+                                If Encrypt_CB.Checked Then
+                                    If LoginForm.ShowDialog = Windows.Forms.DialogResult.OK Then
+                                        Data = AESCryptByte(LoginForm.PasswordTextBox.Text, Data, True)
+                                    End If
+                                End If
+                                StegEng.Encode_Async(Data, Bitmap.FromFile(EImage_TB.Text), Coding, True)
+                                ChgState(True)
+                            Else
+                                MsgBox("Enter the output image location")
+                            End If
+                        Else
+                            MsgBox("Enter text to embed")
+                        End If
+                    End If
+                Else
+                    MsgBox("Image file doesn't exist")
+                End If
+            Else
+
+                If File.Exists(DImage1_TB.Text) Then
+                    If OutFile_RB.Checked And OutFile_TB.Text = "" Then
+                        MsgBox("Choose an output file")
+                        Exit Sub
+                    End If
+                    If Enlarge_RB.Checked Then
+                        StegEng.Decode_Async(Bitmap.FromFile(DImage1_TB.Text), Steg_Engine.Steg_Type.Enlarge, Nothing, True)
+                       ChgState(True)
+                    Else
+                        If File.Exists(DImage2_TB.Text) Then
+                            StegEng.Decode_Async(Bitmap.FromFile(DImage1_TB.Text), Steg_Engine.Steg_Type.Difference, Bitmap.FromFile(DImage1_TB.Text), True)
+                            ChgState(True)
+                        Else
+                            MsgBox("Image file 2 doesn't exist")
+                        End If
+                    End If
+
+                Else
+                    MsgBox("Image file 1 doesn't exist")
+                End If
+
+
+            End If
+
+            'LoginForm.Pass = ""
+            LoginForm.PasswordTextBox.Text = ""
+
+        Else
+            If MsgBox("Are you sure you want to cancel?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes Then
+                StegEng.CancelAsync()
+                ChgState(False)
+            End If
+        End If
+    End Sub
+
+    Function AddMetaData(ByVal Text As String, ByVal Data() As Byte) As Byte()
+        Dim TextData() As Byte = TextToBytes(Text & ">")
+
+        Dim OutData(TextData.Length + Data.Length - 1) As Byte
+
+        Array.Copy(TextData, OutData, TextData.Length)
+
+        Array.Copy(Data, 0, OutData, TextData.Length, Data.Length)
+
+        Return OutData
+    End Function
+
+    Function GetMetaData(ByRef Data() As Byte) As String
+        Dim Position As Long = 0
+
+        For i = 0 To 255
+            If Data(i) = 62 Then
+                Position = i + 1
+                GoTo Found
+            End If
+        Next
+SkipLoop:
+        Throw New ApplicationException("Can't find the file name." & vbCrLf & "The data could be corrupt, in a text format, or it could be encrypted.")
+
+Found:
+        Dim TextData(Position - 2) As Byte
+
+        Array.Copy(Data, TextData, Position - 1)
+
+
+        If IllegalChars(TextData) Then GoTo SkipLoop
+
+
+        Dim Text As String = TextToBytes(TextData)
+
+        Dim OutData(Data.Length - Position - 1) As Byte
+
+        Array.Copy(Data, Position, OutData, 0, Data.Length - Position)
+
+        Data = OutData
+
+        Return Text
+    End Function
+
+    Function IllegalChars(ByVal InData As Byte()) As Boolean
+        Dim Str As String = System.Text.ASCIIEncoding.ASCII.GetChars(InData, 0, InData.Length)
+        If Str.Contains("|") Then
+            Return True
+        End If
+        If Str.Contains("*") Then
+            Return True
+        End If
+        If Str.Contains("<") Then
+            Return True
+        End If
+        If Str.Contains("?") Then
+            Return True
+        End If
+        If Str.Contains("\") Then
+            Return True
+        End If
+        If Str.Contains("/") Then
+            Return True
+        End If
+        If Str.Contains(":") Then
+            Return True
+        End If
+        Return False
+
+    End Function
+
+    Sub ChgState(ByVal Start As Boolean)
+        If Start Then
+            Start_Btn.Text = "Cancel"
+            Encode_GB.Enabled = False
+            Decode_GB.Enabled = False
+            StegType_GB.Enabled = False
+            Encode_RB.Enabled = False
+            Decode_RB.Enabled = False
+            Encrypt_CB.Enabled = False
+        Else
+            Start_Btn.Text = "Start"
+            Encode_GB.Enabled = True
+            Decode_GB.Enabled = True
+            StegType_GB.Enabled = True
+            Encode_RB.Enabled = True
+            Decode_RB.Enabled = True
+            Encrypt_CB.Enabled = True
+        End If
+    End Sub
+
+    Private Sub StegEng_Report_Error(ByVal Ex As System.Exception) Handles StegEng.Report_Error
+        Err_Handler.ErrLog(Ex)
+        Err_Handler.ErrMsg(Ex.Message)
+
+        'ChgState(False)
+    End Sub
+
+    Private Sub StegEng_Report_Progress(ByVal Progress As Double) Handles StegEng.Report_Progress
+        ProgressBar1.Value = Progress
+    End Sub
+
+    Private Sub StegEng_Encode_Async_Finished(ByVal OutImage As System.Drawing.Bitmap) Handles StegEng.Encode_Async_Finished
+        Try
+            OutImage.Save(OutImg_TB.Text)
+
+            ChgState(False)
+
+            ProgressBar1.Value = 100
+
+            MsgBox("Finished!")
+        Catch Ex As Exception
+            Err_Handler.ErrLog(Ex)
+            Err_Handler.ErrMsg(Ex.Message)
+            ChgState(False)
+        End Try
+    End Sub
+
+    Private Sub StegEng_Decode_Async_Finished(ByVal OutData() As Byte) Handles StegEng.Decode_Async_Finished
+        Try
+            If Encrypt_CB.Checked Then
+                If LoginForm.ShowDialog = Windows.Forms.DialogResult.OK Then
+                    OutData = AESCryptByte(LoginForm.PasswordTextBox.Text, OutData, False)
+                End If
+            End If
+
+            LoginForm.PasswordTextBox.Text = ""
+
+            If OutData.Length > 1 Then
+                If OutFile_RB.Checked Then
+                    Dim FileName As String = GetMetaData(OutData)
+                    If File.Exists(OutFile_TB.Text & FileName) Then
+                        MsgBox("A file with the name '" & FileName & "' already exists." & vbCrLf & "Please select a different name.")
+                        Dim Ext As String = GetExt(FileName)
+                        SaveFileDialog1.Filter = Ext & "|*" & Ext
+                        If SaveFileDialog1.ShowDialog = Windows.Forms.DialogResult.OK Then
+                            My.Computer.FileSystem.WriteAllBytes(SaveFileDialog1.FileName, OutData, False)
+                        End If
+                    Else
+                        My.Computer.FileSystem.WriteAllBytes(OutFile_TB.Text & FileName, OutData, False)
+                    End If
+
+                Else
+                    OutText_RTB.Text = TextToBytes(OutData)
+                End If
+            Else
+                MsgBox("No Data in Image")
+                GoTo Finish
+            End If
+
+
+            MsgBox("Finished!")
+Finish:
+            ChgState(False)
+
+            ProgressBar1.Value = 100
+        Catch Ex As Exception
+            Err_Handler.ErrLog(Ex)
+            Err_Handler.ErrMsg(Ex.Message)
+            ChgState(False)
+        End Try
+    End Sub
+
+    Function TextToBytes(ByVal InStr As String) As Byte()
+        Return System.Text.ASCIIEncoding.ASCII.GetBytes(InStr)
+    End Function
+
+    Function TextToBytes(ByVal Data() As Byte) As String
+        Return System.Text.ASCIIEncoding.ASCII.GetString(Data)
+    End Function
+
+    Private Sub OutFile_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OutFile_Btn.Click
+        SaveFileDialog1.Filter = "Bitmap files (*.bmp)|*.bmp"
+
+        If SaveFileDialog1.ShowDialog = Windows.Forms.DialogResult.OK Then
+            OutImg_TB.Text = SaveFileDialog1.FileName
+        End If
+    End Sub
+
+    Function GetExt(ByVal Name As String) As String
+        For i = Name.Length - 1 To 0 Step -1
+            If Name(i) = "." Then
+                Return Mid(Name, i + 1, Name.Length - i + 1)
+            End If
+        Next
+    End Function
+
+#Region "Drag-Drop Subs"
+    Private Sub EImage_TB_DragEnter(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles EImage_TB.DragEnter
+        e.Effect = DragDropEffects.Copy
+    End Sub
+
+    Private Sub EImage_TB_DragDrop(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles EImage_TB.DragDrop
+        EImage_TB.Text = CType(e.Data.GetData(DataFormats.FileDrop), Array).GetValue(0).ToString
+        If Not File.Exists(EImage_TB.Text) Then
+            EImage_TB.Text = ""
+            MsgBox("Select files only")
+        End If
+    End Sub
+
+    Private Sub File_TB_DragEnter(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles File_TB.DragEnter
+        e.Effect = DragDropEffects.Copy
+    End Sub
+
+    Private Sub File_TB_DragDrop(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles File_TB.DragDrop
+        File_TB.Text = CType(e.Data.GetData(DataFormats.FileDrop), Array).GetValue(0).ToString
+        If Not File.Exists(File_TB.Text) Then
+            File_TB.Text = ""
+            MsgBox("Select files only")
+        End If
+    End Sub
+
+    Private Sub DImage1_TB_DragEnter(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles DImage1_TB.DragEnter
+        e.Effect = DragDropEffects.Copy
+    End Sub
+
+    Private Sub DImage1_TB_DragDrop(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles DImage1_TB.DragDrop
+        DImage1_TB.Text = CType(e.Data.GetData(DataFormats.FileDrop), Array).GetValue(0).ToString
+        If Not File.Exists(DImage1_TB.Text) Then
+            DImage1_TB.Text = ""
+            MsgBox("Select files only")
+        End If
+    End Sub
+
+    Private Sub DImage2_TB_DragEnter(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles DImage2_TB.DragEnter
+        e.Effect = DragDropEffects.Copy
+    End Sub
+
+    Private Sub DImage2_TB_DragDrop(ByVal sender As Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles DImage2_TB.DragDrop
+        DImage2_TB.Text = CType(e.Data.GetData(DataFormats.FileDrop), Array).GetValue(0).ToString
+        If Not File.Exists(DImage2_TB.Text) Then
+            DImage2_TB.Text = ""
+            MsgBox("Select files only")
+        End If
+    End Sub
+#End Region
+
+    Private Sub OutFile_RB_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OutFile_RB.CheckedChanged
+        If OutFile_RB.Checked Then
+            OutFile_TB.Enabled = True
+            Select_Btn.Enabled = True
+            OutText_RTB.Enabled = False
+        Else
+            OutFile_TB.Enabled = False
+            Select_Btn.Enabled = False
+            OutText_RTB.Enabled = True
+        End If
+    End Sub
+
+    Private Sub Select_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Select_Btn.Click
+        'SaveFileDialog1.Filter = "All Files (*.*)|*.*"
+        If FolderBrowserDialog1.ShowDialog = Windows.Forms.DialogResult.OK Then
+            OutFile_TB.Text = FolderBrowserDialog1.SelectedPath & "\"
+        End If
+    End Sub
+
+#Region "Encryption"
+    Function AESCryptByte(ByVal Password As String, ByVal InBytes As Byte(), ByVal Encrypt As Boolean) As Byte()
+        Dim Fail(0) As Byte
+        Try
+            Dim OutBytes As Byte() = Nothing
+
+
+            Dim AES_provider As New AesCryptoServiceProvider()
+            AES_provider.Padding = PaddingMode.PKCS7
+
+            Dim key_size_bits As Integer = 0
+            For i As Integer = 1024 To 1 Step -1
+                If AES_provider.ValidKeySize(i) Then
+                    key_size_bits = i
+                    Exit For
+                End If
+            Next i
+            Debug.Assert(key_size_bits > 0)
+
+            Dim block_size_bits As Integer = AES_provider.BlockSize
+
+            Dim key As Byte() = Nothing
+            Dim iv As Byte() = Nothing
+            Dim salt As Byte() = {&H0, &H0, &H1, &H2, &H3, &H4, &H5, &H6, &HF1, &HF0, &HEE, &H21, &H22, &H45}
+            MakeKeyAndIV(Password, salt, key_size_bits, block_size_bits, key, iv)
+
+            Dim crypto_transform As ICryptoTransform
+            If Encrypt Then
+                crypto_transform = AES_provider.CreateEncryptor(key, iv)
+            Else
+                crypto_transform = AES_provider.CreateDecryptor(key, iv)
+            End If
+
+            Try
+
+                OutBytes = crypto_transform.TransformFinalBlock(InBytes, 0, InBytes.Length)
+
+                crypto_transform.Dispose()
+
+                Return OutBytes
+
+            Catch
+                Err_Handler.ErrMsg("Incorrect password")
+                Return Fail
+            End Try
+
+
+        Catch Ex As Exception
+            Err_Handler.ErrLog(Ex)
+            Err_Handler.ErrMsg(Ex.Message)
+            Return Fail
+        End Try
+    End Function
+
+    Private Sub MakeKeyAndIV(ByVal password As String, ByVal salt() As Byte, ByVal key_size_bits As Integer, ByVal block_size_bits As Integer, ByRef key As Byte(), ByRef iv As Byte())
+        Dim derive_bytes As New Rfc2898DeriveBytes(password, salt, 1000)
+
+        key = derive_bytes.GetBytes(key_size_bits \ 8)
+        iv = derive_bytes.GetBytes(block_size_bits \ 8)
+
+        ' Debugging:
+#Const DEBUG_KEY = False
+#If DEBUG_KEY Then
+            Dim txt As String
+            txt = ""
+            For i As Integer = 0 To salt.Length - 1
+                txt &= salt(i).ToString() & " "
+            Next i
+            Debug.WriteLine("Salt: " & txt)
+
+            txt = ""
+            For i As Integer = 0 To key.Length - 1
+                txt &= key(i).ToString() & " "
+            Next i
+            Debug.WriteLine("Key:  " & txt)
+
+            txt = ""
+            For i As Integer = 0 To iv.Length - 1
+                txt &= iv(i).ToString() & " "
+            Next i
+            Debug.WriteLine("IV:   " & txt)
+            Debug.WriteLine("******")
+#End If ' DEBUG_BYTES
+    End Sub
+#End Region
+
+#Region "'Options' Menu"
+    Private Sub Options_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Options_Btn.Click
+        Options_CMS.Show(Options_Btn, New Point(12, 12))
+    End Sub
+
+    Private Sub OnlineDocumentationToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OnlineDocumentationToolStripMenuItem.Click
+        Dim NetShrtCut As String = ProgData & "ImgSteg - Codeplex.url"
+        Dim Strm As New StreamWriter(NetShrtCut)
+        Strm.WriteLine("[InternetShortcut]")
+        Strm.WriteLine("URL=http://imagesteganography.codeplex.com/documentation")
+        Strm.Close()
+        Process.Start(NetShrtCut)
+    End Sub
+
+    Private Sub VersionToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles VersionToolStripMenuItem.Click
+        MsgBox("Image Steganography " & Me.ProductVersion & ", CPascoe 2011")
+    End Sub
+
+    Private Sub ExitToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ExitToolStripMenuItem.Click
+        Application.Exit()
+    End Sub
+#End Region
+
+End Class
+
+'Simple Error Logging Class
+
+Imports System.IO
+Public Class Error_Logger
+
+    Dim Loc As String
+    Dim Name As String
+    Dim Version As String
+
+    Sub New(ByVal Log_Location As String, ByVal Software_Name As String, ByVal Software_Version As String)
+        Loc = Log_Location
+        Name = Software_Name
+        Version = Software_Version
+    End Sub
+
+    Sub ErrLog(ByVal Ex As Exception)
+        Try
+            Dim Date1 As String = My.Computer.Clock.LocalTime.ToShortDateString
+            Dim Time As String = My.Computer.Clock.LocalTime.ToLongTimeString
+
+            Dim ErrLogStrm As New StreamWriter(Loc, True)
+            With ErrLogStrm
+                .WriteLine("<" & Name & " - " & Version & "><" & Date1 & ", " & Time & ">")
+                .WriteLine("")
+                .WriteLine(Ex.ToString)
+                .WriteLine("")
+                .Close()
+                .Dispose()
+            End With
+
+        Catch
+        End Try
+    End Sub
+
+    Sub ErrMsg(ByVal Message As String)
+        MsgBox("Error - " & Message, MsgBoxStyle.Exclamation, Name & " - Error")
+    End Sub
+
+    Sub Del_ErrLog()
+        If File.Exists(Loc) Then
+            My.Computer.FileSystem.DeleteFile(Loc)
+        End If
+    End Sub
+
+End Class
+
+'The Steganography Processing Class
+
+Imports System.ComponentModel
+Public Class Steg_Engine
+
+    WithEvents Diff_BW As New BackgroundWorker
+    WithEvents Enlarge_BW As New BackgroundWorker
+    WithEvents Prog_Timer As New Timer
+
+    Dim ReportProg As Boolean
+    Dim Diff_ReportProg As Boolean
+
+    Dim Cancel As Boolean = False
+
+    Dim Progress As Double
+
+    Sub New()
+        Enlarge_BW.WorkerSupportsCancellation = True
+        Diff_BW.WorkerSupportsCancellation = True
+
+        Prog_Timer.Stop()
+        Prog_Timer.Interval = 100
+
+    End Sub
+
+    Enum Steg_Type
+        Difference = 1
+        Enlarge = 2
+    End Enum
+
+#Region "Encoding/Decoding"
+    Function Encode(ByVal Data() As Byte, ByVal InImage As Bitmap, ByVal CodingType As Steg_Type, Optional ByVal ReportProgress As Boolean = False) As Bitmap
+        Try
+            ReportProg = ReportProgress
+            StartTimer(ReportProgress)
+
+            If CodingType = Steg_Type.Difference Then
+                Diff_ReportProg = ReportProgress
+                Return Diff(Data, InImage)
+            Else
+                Diff_ReportProg = False
+                Return Enlarge(Data, InImage)
+            End If
+
+            StartTimer(False)
+        Catch Ex As Exception
+            RaiseEvent Report_Error(Ex)
+        End Try
+
+        Return Nothing
+    End Function
+
+    Sub Encode_Async(ByVal Data() As Byte, ByVal InImage As Bitmap, ByVal CodingType As Steg_Type, Optional ByVal ReportProgress As Boolean = False)
+        Try
+            If Diff_BW.IsBusy Or Enlarge_BW.IsBusy Then Throw New ApplicationException("Async Thread is alread running")
+
+            Dim InData(2) As Object
+            InData(0) = Data
+            InData(1) = InImage
+            InData(2) = True
+
+            ReportProg = ReportProgress
+            StartTimer(ReportProgress)
+
+            If CodingType = Steg_Type.Difference Then
+                Diff_ReportProg = ReportProgress
+                Diff_BW.RunWorkerAsync(InData)
+            Else
+                Diff_ReportProg = False
+                Enlarge_BW.RunWorkerAsync(InData)
+            End If
+        Catch Ex As Exception
+            RaiseEvent Report_Error(Ex)
+        End Try
+    End Sub
+
+    Function Decode(ByVal InImage1 As Bitmap, ByVal CodingType As Steg_Type, Optional ByVal InImage2 As Bitmap = Nothing, Optional ByVal ReportProgress As Boolean = False) As Byte()
+        Try
+            ReportProg = ReportProgress
+            StartTimer(ReportProgress)
+
+            If CodingType = Steg_Type.Difference Then
+                Diff_ReportProg = ReportProgress
+                Return Diff(InImage1, InImage2)
+            Else
+                Diff_ReportProg = False
+                Return Enlarge(InImage1)
+            End If
+
+            StartTimer(False)
+        Catch Ex As Exception
+            RaiseEvent Report_Error(Ex)
+        End Try
+        Return Nothing
+    End Function
+
+    Sub Decode_Async(ByVal InImage1 As Bitmap, ByVal CodingType As Steg_Type, Optional ByVal InImage2 As Bitmap = Nothing, Optional ByVal ReportProgress As Boolean = False)
+        Try
+            If Diff_BW.IsBusy Or Enlarge_BW.IsBusy Then Throw New ApplicationException("Async Thread is alread running")
+
+            Dim InData(2) As Object
+            InData(0) = InImage1
+            InData(1) = InImage2
+            InData(2) = False
+
+            ReportProg = ReportProgress
+            StartTimer(ReportProgress)
+
+            If CodingType = Steg_Type.Difference Then
+                Diff_ReportProg = ReportProgress
+                Diff_BW.RunWorkerAsync(InData)
+            Else
+                Diff_ReportProg = False
+                Enlarge_BW.RunWorkerAsync(InData)
+            End If
+        Catch Ex As Exception
+            RaiseEvent Report_Error(Ex)
+        End Try
+    End Sub
+#End Region
+
+#Region "Encode/Decode Async"
+    Public Event Encode_Async_Finished(ByVal OutImage As Bitmap)
+    Public Event Decode_Async_Finished(ByVal OutData() As Byte)
+
+    Private Sub Diff_BW_DoWork(ByVal sender As Object, ByVal e As System.ComponentModel.DoWorkEventArgs) Handles Diff_BW.DoWork
+        Try
+            Dim InData() As Object = e.Argument
+
+            Dim OutData(1) As Object
+
+            OutData(1) = InData(2)
+
+            Dim InImage2 As Bitmap = InData(1)
+
+
+            If InData(2) Then
+                Dim Data() As Byte = InData(0)
+                OutData(0) = Diff(Data, InImage2)
+            Else
+                Dim InImage1 As Bitmap = InData(0)
+                OutData(0) = Diff(InImage1, InImage2)
+            End If
+
+            If Cancel Then e.Cancel = True
+
+            e.Result = OutData
+        Catch Ex As Exception
+            e.Cancel = True
+            RaiseEvent Report_Error(Ex)
+        End Try
+    End Sub
+
+    Private Sub Diff_BW_RunWorkerCompleted(ByVal sender As Object, ByVal e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles Diff_BW.RunWorkerCompleted
+        StartTimer(False)
+
+        If Not e.Cancelled Then
+            Dim OutData() As Object = e.Result
+
+            If OutData(1) Then
+                RaiseEvent Encode_Async_Finished(OutData(0))
+            Else
+                RaiseEvent Decode_Async_Finished(OutData(0))
+            End If
+        End If
+
+    End Sub
+
+    Private Sub Enlarge_BW_DoWork(ByVal sender As Object, ByVal e As System.ComponentModel.DoWorkEventArgs) Handles Enlarge_BW.DoWork
+        Try
+            Dim InData() As Object = e.Argument
+
+            Dim OutData(1) As Object
+
+            OutData(1) = InData(2)
+
+            If InData(2) Then
+                OutData(0) = Enlarge(InData(0), InData(1))
+            Else
+                OutData(0) = Enlarge(InData(0))
+            End If
+
+            If Cancel Then e.Cancel = True
+
+            e.Result = OutData
+        Catch Ex As Exception
+            e.Cancel = True
+            RaiseEvent Report_Error(Ex)
+        End Try
+    End Sub
+
+    Private Sub Enlarge_BW_RunWorkerCompleted(ByVal sender As Object, ByVal e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles Enlarge_BW.RunWorkerCompleted
+        StartTimer(False)
+
+        If Not e.Cancelled Then
+            Dim OutData() As Object = e.Result
+
+            If OutData(1) Then
+                RaiseEvent Encode_Async_Finished(OutData(0))
+            Else
+                RaiseEvent Decode_Async_Finished(OutData(0))
+            End If
+        End If
+
+    End Sub
+
+    Sub CancelAsync()
+        Cancel = True
+    End Sub
+#End Region
+
+    Sub StartTimer(ByVal Start As Boolean)
+        If Start Then
+            Prog_Timer.Start()
+        Else
+            Prog_Timer.Stop()
+            Cancel = False
+            EnlargePercent = 0
+        End If
+    End Sub
+
+    Public Event Report_Progress(ByVal Progress As Double)
+    Public Event Report_Error(ByVal Ex As Exception)
+
+#Region "Difference"
+    Private Function Diff(ByVal Data() As Byte, ByVal InImage As Bitmap) As Bitmap
+
+        Dim Count As Long = 0
+
+        If Data.Length > (InImage.Height * InImage.Width) Then
+            Throw New ApplicationException("Data Array too large; use larger image")
+        End If
+
+        'Dim Colour As Color
+
+        'Dim OutImage As New Bitmap(InImage.Width, InImage.Height)
+        Dim OutImage As New Bitmap(InImage)
+
+        For y = 0 To InImage.Height - 1
+            If Diff_ReportProg Then
+                ReportThreadProgress((y / InImage.Height) * 100)
+            Else
+                EnlargeProg((y / InImage.Height) * 20)
+            End If
+
+            If Cancel Then Return Nothing
+
+            For x = 0 To InImage.Width - 1
+
+                'Colour = InImage.GetPixel(x, y)
+
+                If Count < Data.Length Then
+                    'Colour = Gen_Colour(Data(Count), InImage.GetPixel(x, y))
+                    OutImage.SetPixel(x, y, Gen_Colour(Data(Count), InImage.GetPixel(x, y)))
+                    Count += 1
+                Else
+                    'OutImage.SetPixel(x, y, InImage.GetPixel(x, y))
+                    Return OutImage
+                End If
+
+
+                'Colour = Gen_Colour(Data(Count), InImage.GetPixel(x, y))
+
+                'OutImage.SetPixel(x, y, Colour)
+
+                'Count += 1
+                'If Count = Data.Length Then
+                '    Return OutImage
+                'End If
+            Next
+        Next
+
+        Return OutImage
+
+    End Function
+
+    Private Function Gen_Colour(ByVal InByte As Byte, ByVal InColour As Color) As Color
+        Dim R, B As Byte
+
+        'Dim Str As String = Hex(InByte)
+        '72
+        If InColour.R < 128 Then
+            R = InColour.R + (InByte Mod 16)
+            '8
+        Else
+            R = InColour.R - (InByte Mod 16)
+        End If
+
+        If InColour.B < 128 Then
+            B = InColour.B + ((InByte - (InByte Mod 16)) / 16)
+            '4
+        Else
+            B = InColour.B - ((InByte - (InByte Mod 16)) / 16)
+        End If
+
+        Dim OutColour As Color = Color.FromArgb(R, InColour.G, B)
+
+        Return OutColour
+
+    End Function
+
+    Private Function Diff(ByVal InImage1 As Bitmap, ByVal InImage2 As Bitmap, Optional ByVal AutoTrim As Boolean = True) As Byte()
+
+        If InImage1.Height <> InImage2.Height Or InImage1.Width <> InImage2.Width Then
+            Throw New ApplicationException("Images different sizes")
+        End If
+
+        Dim Count As Long = 0
+        Dim LastVal As Long = 0
+        Dim Data(InImage1.Height * InImage1.Width) As Byte
+
+        Dim Col1, Col2 As Color
+
+        For y = 0 To InImage1.Height - 1
+            If Diff_ReportProg Then
+                ReportThreadProgress((y / InImage1.Height) * 100)
+            Else
+                EnlargeProg((y / InImage1.Height) * 20)
+            End If
+
+            If Cancel Then Return Nothing
+
+
+            For x = 0 To InImage1.Width - 1
+
+
+                Col1 = InImage1.GetPixel(x, y)
+
+                Col2 = InImage2.GetPixel(x, y)
+
+                If Not Col1 = Col2 Then
+                    Data(Count) = GetData(Col1, Col2)
+                    LastVal = Count
+                Else
+                    Data(Count) = 0
+                End If
+
+                Count += 1
+
+            Next
+        Next
+
+        If AutoTrim Then
+            Array.Resize(Data, LastVal + 1)
+        End If
+
+        Return Data
+
+    End Function
+
+    Private Function GetData(ByVal Col1 As Color, ByVal Col2 As Color) As Byte
+        Dim Data As Byte = 0
+
+        If Col1.R > Col2.R Then
+            Data = Col1.R - Col2.R
+        Else
+            Data = Col2.R - Col1.R
+        End If
+
+        If Col1.B > Col2.B Then
+            Data += 16 * (Col1.B - Col2.B)
+        Else
+            Data += 16 * (Col2.B - Col1.B)
+        End If
+
+        Return Data
+
+    End Function
+#End Region
+
+#Region "Enlarge"
+    Dim EnlargePercent As Double = 0
+
+    Private Function Enlarge(ByVal Data() As Byte, ByVal InImage As Bitmap) As Bitmap
+        If Data.Length + 1 > (InImage.Width * InImage.Height * 3) Then
+            Throw New ApplicationException("Data Array too large; use larger image")
+        End If
+
+        Dim InImage2 As New Bitmap(InImage.Width, InImage.Height)
+        Dim InImage3 As New Bitmap(InImage.Width, InImage.Height)
+        Dim InImage4 As New Bitmap(InImage.Width, InImage.Height)
+
+        Array.Resize(Data, Data.Length + 1)
+
+        Data(Data.Length - 1) = 1
+
+        If Data.Length <= (InImage.Width * InImage.Height) Then
+            InImage2 = Diff(Data, InImage)
+            EnlargePercent = 60
+            InImage3 = InImage
+            InImage4 = InImage
+        Else
+
+            Dim Temp1((InImage.Width * InImage.Height) - 1) As Byte
+            Dim Temp2((InImage.Width * InImage.Height) - 1) As Byte
+            Dim Temp3((InImage.Width * InImage.Height) - 1) As Byte
+
+            SplitArray(Data, Temp1, Temp2, Temp3)
+
+            EnlargePercent = 0
+            InImage2 = Diff(Temp1, InImage)
+            EnlargePercent = 20
+            If Not Temp2.Length = 0 Then
+                InImage3 = Diff(Temp2, InImage)
+            Else
+                InImage3 = InImage
+            End If
+            EnlargePercent = 40
+            If Not Temp3.Length = 0 Then
+                InImage4 = Diff(Temp3, InImage)
+            Else
+                InImage4 = InImage
+            End If
+            EnlargePercent = 60
+        End If
+
+        Dim OutImage As New Bitmap(InImage.Width * 2, InImage.Height * 2)
+
+        Dim x2, y2 As Long
+
+        x2 = 0
+        y2 = 0
+
+        For y = 0 To OutImage.Height - 1 Step 2
+            If ReportProg Then
+                EnlargeProg((y / OutImage.Height) * 40)
+            End If
+
+            If Cancel Then Return Nothing
+
+            For x = 0 To OutImage.Width - 1 Step 2
+                OutImage.SetPixel(x, y, InImage.GetPixel(x2, y2))
+                OutImage.SetPixel(x + 1, y, InImage2.GetPixel(x2, y2))
+                OutImage.SetPixel(x + 1, y + 1, InImage3.GetPixel(x2, y2))
+                OutImage.SetPixel(x, y + 1, InImage4.GetPixel(x2, y2))
+                x2 += 1
+            Next
+            x2 = 0
+            y2 += 1
+        Next
+
+        Return OutImage
+
+    End Function
+
+    Private Sub SplitArray(ByVal MainData() As Byte, ByRef Temp1() As Byte, ByRef Temp2() As Byte, ByRef Temp3() As Byte)
+
+        If MainData.Length >= Temp1.Length Then
+            Array.Copy(MainData, Temp1, Temp1.Length)
+        Else
+            Array.Copy(MainData, Temp1, MainData.Length)
+            Array.Resize(Temp1, MainData.Length)
+        End If
+
+        Dim Count As Long = 0
+
+        If MainData.Length > Temp1.Length Then
+            If MainData.Length < Temp1.Length * 2 Then
+                Array.Copy(MainData, Temp1.Length, Temp2, 0, MainData.Length - Temp1.Length)
+            Else
+                Array.Copy(MainData, Temp1.Length, Temp2, 0, Temp2.Length)
+            End If
+
+            'For i = Temp1.Length To (Temp1.Length * 2) - 1
+            '    Temp2(Count) = MainData(i)
+            '    Count += 1
+            'Next
+        Else
+            Array.Resize(Temp2, 0)
+        End If
+
+        Count = 0
+
+        If MainData.Length > Temp1.Length * 2 Then
+            If MainData.Length < Temp1.Length * 2 Then
+                Array.Copy(MainData, Temp1.Length * 2, Temp3, 0, MainData.Length - (Temp1.Length * 2))
+            Else
+                Array.Copy(MainData, Temp1.Length * 2, Temp3, 0, Temp3.Length)
+            End If
+            'For i = (Temp1.Length * 2) To (Temp1.Length * 2) - 1
+            '    Temp3(Count) = MainData(i)
+            '    Count += 1
+            'Next
+        Else
+            Array.Resize(Temp3, 0)
+        End If
+
+    End Sub
+
+    Private Function Enlarge(ByVal InImage As Bitmap) As Byte()
+        Dim Image1 As New Bitmap(CInt(InImage.Width / 2), CInt(InImage.Height / 2))
+        Dim Image2 As New Bitmap(CInt(InImage.Width / 2), CInt(InImage.Height / 2))
+        Dim Image3 As New Bitmap(CInt(InImage.Width / 2), CInt(InImage.Height / 2))
+        Dim Image4 As New Bitmap(CInt(InImage.Width / 2), CInt(InImage.Height / 2))
+
+        Dim x2, y2 As Long
+
+        x2 = 0
+        y2 = 0
+
+        EnlargePercent = 0
+
+        For y = 0 To InImage.Height - 1 Step 2
+            If ReportProg Then
+                EnlargeProg((y / InImage.Height) * 40)
+            End If
+
+            If Cancel Then Return Nothing
+
+            For x = 0 To InImage.Width - 1 Step 2
+                Image1.SetPixel(x2, y2, InImage.GetPixel(x, y))
+                Image2.SetPixel(x2, y2, InImage.GetPixel(x + 1, y))
+                Image3.SetPixel(x2, y2, InImage.GetPixel(x + 1, y + 1))
+                Image4.SetPixel(x2, y2, InImage.GetPixel(x, y + 1))
+                x2 += 1
+            Next
+            x2 = 0
+            y2 += 1
+        Next
+
+        EnlargePercent = 40
+
+        Dim Temp1() As Byte = Diff(Image1, Image2)
+        If Cancel Then Return Nothing
+        EnlargePercent = 60
+        Dim Temp2() As Byte = Diff(Image1, Image3)
+        If Cancel Then Return Nothing
+        EnlargePercent = 80
+        Dim Temp3() As Byte = Diff(Image1, Image4)
+        If Cancel Then Return Nothing
+
+
+        Dim Data(Temp1.Length * 3) As Byte
+
+        Array.Copy(Temp1, Data, Temp1.Length)
+
+        Array.Copy(Temp2, 0, Data, Temp1.Length, Temp2.Length)
+
+        Array.Copy(Temp3, 0, Data, Temp1.Length * 2, Temp3.Length)
+
+        For i = Data.Length - 1 To 0 Step -1
+            If Data(i) = 1 Then
+                Array.Resize(Data, i)
+                Return Data
+            End If
+        Next
+
+        Dim Empty(0) As Byte
+
+        Return Empty
+    End Function
+
+    Private Sub EnlargeProg(ByVal Percent As Double)
+        Percent += EnlargePercent
+
+        ReportThreadProgress(Percent)
+    End Sub
+#End Region
+
+    Sub ReportThreadProgress(ByVal Prog As Double)
+        Progress = Prog
+    End Sub
+
+    Private Sub Prog_Timer_Tick(ByVal sender As Object, ByVal e As System.EventArgs) Handles Prog_Timer.Tick
+        RaiseEvent Report_Progress(Progress)
+    End Sub
+End Class

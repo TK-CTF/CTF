@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <meta name="keyword" content="ctf,flag">
+    <meta name="description" content="flag is cpaw{9216ddf84851f15a46662eb04759d2bebacac666}">
+    <meta name="author" content="takahoyo">
+
+    <title>Capture The Flag</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Custom styles for this template -->
+    <style type="text/css">
+      body {
+        padding-top: 50px;
+        padding-bottom: 20px;
+      }
+    </style>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Capture The Flag</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Capture The Flag</h1>
+        <p>Capture The Flag（CTF）は、コンピュータやセキュリティの知識や技術を競う競技である。問題からFLAG（フラッグ）と呼ばれる答えを探すことから、このような名前となっている。</p>
+        <p><a class="btn btn-primary btn-lg" href="https://ja.wikipedia.org/wiki/%E3%82%AD%E3%83%A3%E3%83%97%E3%83%81%E3%83%A3%E3%83%BC%E3%83%BB%E3%82%B6%E3%83%BB%E3%83%95%E3%83%A9%E3%83%83%E3%82%B0" role="button">Learn more &raquo;</a></p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-6">
+          <h2>CTFで身につくこと</h2>
+          <p>情報セキュリティを学ぶにはある特定の分野の知識だけでなく、ネットワーク、サーバ、アプリケーション、OSなどのコンピュータ全般に関する幅広い分野の知識や技術が求められている。</p>
+          <p>このようなことを普通に勉強するには、モチベーションを保つのが難しく、身につけようと思っても身につかないものである。CTFでは、これらのことををゲーム形式で出題することで、より楽しく、より気軽に身につけることが出来る。</p>
+        </div>
+        <div class="col-md-6">
+          <h2>CTFの種類</h2>
+          <p>CTFには、大きく分けて<b>クイズ形式</b>と<b>攻防戦形式</b>の二つの形式がある。<p>
+          <p>クイズ形式(Jeopardy形式)は、数問のコンピュータやセキュリティに関する問題が与えられて、その問題を解く形式である。Cpaw CTFもこれに当てはまる。
+          この問題を解くためには自身が持つコンピュータに関する知識や技術はもちろんのこと、時にはひらめきも必要だ。このような感覚は、実際に普段からプログラムを書くことや、サーバやネットワークを構築・運用することなどの経験からも身につく。</p>
+          <p>一方、攻防戦形式(Attack&amp;Defence形式)は、各チームにサーバが与えられて、それを守りながら他のチームのサーバを攻撃するといったものである。この形式は、様々なCTFの決勝戦で多く見られる形式であり、前述のクイズ形式より高度な知識と技術が求められる。</p>
+       </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h2>CTFで出題されるジャンル</h2>
+          <p>クイズ形式のCTFでは、次のようなジャンルが出題される。</p>
+          <ul>
+            <li>Reversing : 実行ファイルを解析する問題</li>
+            <li>Pwn : サーバプログラムが持つ脆弱性をつく問題</li>
+            <li>Web : Webに関する問題。Webアプリケーションが持つ脆弱性をつく問題が多い。</li>
+            <li>Crypto : 暗号を解読する問題</li>
+            <li>Network : ネットワークの通信を解析する問題</li>
+            <li>Forensics : 与えらたファイルを解析する問題</li>
+            <li>Steganography : あるデータに隠蔽されたデータを探す問題</li>
+            <li>PPC (Professional Programming and Coding) : プログラミングを使って解く問題</li>
+            <li>Recon : ある特定の人物を調査する問題</li>
+            <li>Misc : 上記のジャンルに当てはまらないコンピュータの雑学、練習問題</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h2>CTFで問題を解けるようになるためには</h2>
+          <p>実際にCTFに出場して、様々な問題に触れることが大事である。CTFは、ほぼ毎週世界中のどこかで行われている。<a href="https://ctftime.org/">ctftime</a>というサイトに行くと、世界で行われているCTFの日程を知ることが出来る。日本では他には常に動いているものだと<a href="http://ksnctf.sweetduet.info/">ksnctf</a>や<a href="http://ctf.katsudon.org/">akictf</a>などがあり、一定期間中に行われるものだと、日本で最も大規模な<a href="http://2015.seccon.jp/">SECCON CTF</a>、運営が学生主体の<a href="http://lepus-ctf.org/">LepusCTF</a>や<a href="http://score.mmactf.link/?locale=ja">MMA CTF</a>などがある。</p>
+          <p>また競技時間が終わったCTFの問題多くは、問題の解答者によるWriteupと呼ばれる解説がインターネット上に公開されていることが多い。Writeupは、「CTF Writeup」でGoogle検索するとたくさん出てくる。これらを読むことで、他の問題の解き方を知ることができる。</p>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2015 takahoyo </p>
+        <p><font color="#fafafa">Do you read description of this page?</font></p>
+      </footer>
+    </div>
+    <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  </body>
+</html>

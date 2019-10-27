@@ -1,0 +1,21 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Sat Oct 19 21:37:37 2019
+Invocation: foremost 960x540 
+Output directory: /mnt/c/Users/haapt/Programming/CTF/seccon/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: 960x540
+Start: Sat Oct 19 21:37:37 2019
+Length: 2 MB (2798410 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+Finish: Sat Oct 19 21:37:37 2019
+
+0 FILES EXTRACTED
+	
+------------------------------------------------------------------
+
+Foremost finished at Sat Oct 19 21:37:37 2019

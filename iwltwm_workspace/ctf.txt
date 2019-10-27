@@ -1,0 +1,11 @@
+useful digital forensics tool  author: iwltwm
+
+
+exiftool: for lookup exif imformation(made with Perl)
+strings: for lookup ASCII charactors from bit file
+binwalk: for lookup buried files in certain file -e option is recommended
+stepic: for steganography  warning: this is using python2. so, not good
+fls: for lookup drive image
+icat: for output from drive image
+QuickStego: for steganography
+base64: decode base64 text

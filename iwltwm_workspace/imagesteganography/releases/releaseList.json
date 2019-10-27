@@ -1,0 +1,121 @@
+[
+  {
+    "Id": "0",
+    "Name": "Image Steganography 1.5.1",
+    "DevelopmentStatus": "Stable",
+    "Description": "In this update:\n\n> New 'Feedback' feature\n> New Installer (Auto update from previous versions may be affected)\n\n*+NOTE: This version and all of the application releases from now on run on .NET 4.0!!! Please make sure that this is installed for the application to run correctly! .NET 4.0 can be downloaded [url:here|http://www.microsoft.com/downloads/en/details.aspx?FamilyID=9cfb2d51-5ff4-4491-b0e5-b386f32c0992&displaylang=en].+*",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-04-25T09:00:02.323-07:00",
+    "Files": [
+      {
+        "Id": "26d83ea2-9299-4efd-b795-c5fc831a8f77",
+        "FileName": "Image Steganography Setup.exe",
+        "Url": "./0/26d83ea2-9299-4efd-b795-c5fc831a8f77",
+        "Type": "Application",
+        "UploadDate": "2011-04-25T09:00:01.777-07:00"
+      }
+    ]
+  },
+  {
+    "Id": "1",
+    "Name": "Image Steganography 1.5",
+    "DevelopmentStatus": "Stable",
+    "Description": "*+New Release - 1.5+*\nThe latest release LOADS of changes:\n* *MAJOR* speed improvement for the 'Enlarge' algorithm\n* New algorithm; 'Embed' - fast, and almost completely undetectable\n* 'Capacity' feature - displays the data capacity for an image, and shows whether the data can be encoded\n* Image Scaling - if the data capacity for the image is too small, the image can be resized to allow for more data\n* Various Bug Fixes and UI improvements\n\nThe application doesn't require administrator privileges to install.",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-03-25T05:45:04.027-07:00",
+    "Files": [
+      {
+        "Id": "5f5a9c6f-8ce5-4fbb-ba97-a93401c584b3",
+        "FileName": "Image Steganography 1.5.0.0 Setup.zip",
+        "Url": "./1/5f5a9c6f-8ce5-4fbb-ba97-a93401c584b3",
+        "Type": "Application",
+        "UploadDate": "2011-03-25T05:45:03.59-07:00"
+      }
+    ]
+  },
+  {
+    "Id": "2",
+    "Name": "Image Steganography 1.4.5.2",
+    "DevelopmentStatus": "Stable",
+    "Description": "The Latest release of Image Steganography!\n\nThe application has a new Error Reporting System, which allows it to export Error Log, so that bugs can be fixed more efficiently.\n\nFor more information, please see [url:Documentation|http://imagesteganography.codeplex.com/documentation].\n\n*Note: the update feature is a little unstable at the moment (it should still work), but will be fixed soon*\n\nPlease feel free to leave a comment.",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-02-25T07:37:26.863-08:00",
+    "Files": [
+      {
+        "Id": "5329a83b-1d34-4988-b508-7dc1aaf820eb",
+        "FileName": "Image Steganography 1.4.5.2 Setup.zip",
+        "Url": "./2/5329a83b-1d34-4988-b508-7dc1aaf820eb",
+        "Type": "Application",
+        "UploadDate": "2011-02-25T07:37:00.76-08:00"
+      }
+    ]
+  },
+  {
+    "Id": "3",
+    "Name": "Image Steganography 1.4",
+    "DevelopmentStatus": "Stable",
+    "Description": "The latest release of Image Steganography.\n\nIt can now get the latest updates at the click of a button ('Gear' icon > 'Check for Updates')\n\nFor instructions and information, please see Documentation.",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-02-23T12:52:42.747-08:00",
+    "Files": [
+      {
+        "Id": "d9442607-ecdd-47d4-8616-d3cf0e1f73a3",
+        "FileName": "Image Steganography Setup 1.4.0.0.zip",
+        "Url": "./3/d9442607-ecdd-47d4-8616-d3cf0e1f73a3",
+        "Type": "Application",
+        "UploadDate": "2011-02-23T12:52:42.527-08:00"
+      }
+    ]
+  },
+  {
+    "Id": "4",
+    "Name": "Image Steganography 1.2 Source Code",
+    "DevelopmentStatus": "Stable",
+    "Description": "All the source code for the application, in a text file.",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-02-21T06:25:26.907-08:00",
+    "Files": [
+      {
+        "Id": "d435ca9d-f776-4eb0-8295-2aac715ccdf6",
+        "FileName": "Source Code.txt",
+        "Url": "./4/d435ca9d-f776-4eb0-8295-2aac715ccdf6",
+        "Type": "Source Code",
+        "UploadDate": "2011-02-21T06:25:26.89-08:00"
+      }
+    ]
+  },
+  {
+    "Id": "5",
+    "Name": "Image Steganography 1.3",
+    "DevelopmentStatus": "Stable",
+    "Description": "The latest release of Image Steganography.\n\nIt can now get the latest updates at the click of a button (in beta at the moment).\n\nFor instructions and information, please see [url:Documentation|http://imagesteganography.codeplex.com/documentation].",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-02-22T07:37:40.5-08:00",
+    "Files": [
+      {
+        "Id": "1c800cb8-12de-46d4-9753-aa67210cb60c",
+        "FileName": "Image Steganography Setup 1.3.0.0.zip",
+        "Url": "./5/1c800cb8-12de-46d4-9753-aa67210cb60c",
+        "Type": "Application",
+        "UploadDate": "2011-02-22T07:35:52.107-08:00"
+      }
+    ]
+  },
+  {
+    "Id": "6",
+    "Name": "Image Steganography 1.5.2",
+    "DevelopmentStatus": "Stable",
+    "Description": "In this update:\n\n* Improved Error Reporting system, to try and find a bug in that affects the enlarge and difference algorithms\n* Minor Bug fixes",
+    "ReleasedDatge": "0001-01-01T00:00:00",
+    "ModifiedDate": "2011-06-20T01:01:24.043-07:00",
+    "Files": [
+      {
+        "Id": "91b30622-9f83-4f95-9d3f-de4a24dba3d9",
+        "FileName": "Image Steganography Setup.exe",
+        "Url": "./6/91b30622-9f83-4f95-9d3f-de4a24dba3d9",
+        "Type": "Application",
+        "UploadDate": "2011-06-19T13:13:48.37-07:00"
+      }
+    ]
+  }
+]

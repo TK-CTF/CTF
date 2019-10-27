@@ -1,0 +1,154 @@
+Version 0.34:		15/09/2009
+		+Added Cross Win64 compilation target.
+		+Added RPM spec and DEB control files.
+		+Updated About->Translators strings layout for wx2.9.0.
+		+Added wxWidgets 2.9.0 compatibility.
+		+Added four_cc MJPG, Motion JPEG codec.
+		+Changed Makefile for some compatibility for other OS.
+		+Changed install mechanizm at make file.
+		+Added resource.rc file for windows theme support.
+		+Added Ukranian translation by Andriy B.
+		+Fixed broken CLI mode thread.
+		+Cleaned unneccessary code.
+		+Updated Korean, Spanish and Italian Translations to v0.33
+Version 0.33:		13/08/2009
+		+Fixed Windows CLI mode.
+		+Added Farsi (Persian) Translations by for MXAmin
+		+Added Meteorite Code Infection.
+		+Changed Versioning string structure
+		+Added endian.h and moved endian supporting codes in it.
+		+Added CLI play mode.(preview mode without deletion).
+		+Fixed CLI one parameter detection.
+		+Added Codec MP42 and WMV1,WMV2 and WMV3 - M$ Windows Media Video support.
+		+Added Version update notification.
+		+Fixed shutdown on "rec " token.
+		+Fixed some multi RIFFed file fixing.
+		+Fixed close on "INFOISFT" file.
+		+Fixed "Broken index chunk" endless loop.
+		+Fixed Some other bugs.
+Version 0.32:		26/06/2009
+		+Fixed Overwrite mode.
+		+Added Stream type identification code.
+		+Fixed MacOSX PPC bug.
+		+Added BigEndian Hardware support.
+		+Added Codec FourCC VP3x, VP4, VP5, VP6x - On2 TrueMotion VP Support.
+		+Added Codec FourCC SVQ1 & SVQ3 - Sorenson Video 3 Support.
+		+Nuked Save Log property because usefullness.
+		+Fixed detecting half and broken index chunk section.
+		+Added primal H264 and AVC1 codec support.
+		+Added "Recover From Key Frames" option to GUI.
+		+Fixed file truncation & strip function error due Unicode build.
+		+Added Truncation error message.
+		+Added reading OpenDML file (up to 4 GB).(Fixed file will in AVI 1.0 format)
+		+Fixed Stoping in Paused state.
+		+Fixed gramathical mistakes. (Thanks for Federico Del Bene)
+		+Fixed crash on some files which have "vedt" RIFF header chunk
+		+Fixed MacOSX "Keep the original file" file open error bug.
+		+Merge makefiles to one. "makefile mac" does the job for mac.
+		+Added Russian translation by Konstantin Krasnov
+		+Changed makefile for mass language compilation.
+		+Added Spanish translation.(Thanks for Oscar Cuesta)
+		+Added Relative Output Folder and File option.
+		+Fixed Gramathical mistakes in English. (Thanks for Bastian Wiegmann and DirektX)
+		+Added German translation. (Thanks for Bastian Wiegmann)
+Version 0.31:		28/12/2008
+		+Fixed preferences dialog size on MacOSX.
+		+Fixed unicode definitions at header files for compilation errors at windows.
+		+Fixed shutdown behaviour at language change on windows.
+		+Removed unnecessary Code::Block files.
+		+Fixed non-AVI files execute player directly on preview mode.
+		+Fixed compile warnings on XPM files.
+		+Fixed languge scan on both /usr(/local)/share/locale on Linux.
+		+Added DivFix++.desktop file for linux compilations. (Thanks for robocat)
+		+Fixed Makefile uninstall options.
+		+Added French translations. (Thanks for Didier Bourre)
+		+Added Italian translation. (Thanks for Giovanni Fiocco)
+		+Added korean Translation. (Thanks StarCodec)
+		+Fixed Makefile's DESTDIR patch. (Thanks to Serkan)
+		+Fixed Remove Files button deletes 2 file while 1 selected.
+		+Changed Fix button to Fix / Pause / Resume tri state button.
+Version 0.30:		21/06/2008
+		+Updated Makefile.Mac and Makefile build files.
+		+"Keep Original" option disables save path now.
+		+Renamed CLI tokens.
+		+Added new CLI option. "DivFix++ avifile.avi" previews file.
+		+Added "media player path" to Preferences.
+		+Created Preferences button and dialog. Language setting moved there.
+		+Rename "Rebuild Index" to "Fix"
+		+Fixed some GUI layout.
+		+Updated Turkish translation.
+		+Added and Updated Czhec translation.(SeC0nd.uNiT)
+		+Added and Updated Japanise translation.(Norihito Waku)
+		+Fixed check errors bug.
+		+Added forgotten hungarian translation to v0.29 change log ( this file :) )
+
+Version 0.29:		01/04/2007
+		+Added Hungarian translation.(DirektX)
+		+Added duplicated locale avoideance
+		+Changed message "Old Index found" to "Original Index Found"
+		+Fixed Gauge value not reset if file fixing thread is killed by error.
+		+Added 2 blank line to log window after each file.
+		+File end statistics code moved to end of Fix() code.
+		+Fixed forgotten "File Open Error" debug line from Add File(s) button.
+
+Version 0.28:		04/03/2007
+		+Macintosh OSX build support.
+		+GUI Frame remembers it's last size and location
+		+Added minimize button for GUI mode.
+		+Added resizeable frame.
+		+Changed Index buffer size from 10 MB to 20 MB.
+		+Added Turkish catalog file.
+		+Internationalization support added!
+		+Almost all error mesages replaced with new syntax and added new error lines.
+		+GUI Frame recreated with wxFormBuilder.
+		+CLI Mode: changed some option long names like: no_skip -> dont_skip_frames
+		+Removed some single instance checks for CLI
+		+Fixed AVI frame search engine
+		+Added AVI Keyframe detection algorithm. Now supports DIV3 and MP43 AVIs,
+		There no more frame mixing effect after search at this type AVIs.
+
+Version 0.27:		30/12/2006
+		+"LIST" sections under "movi" does not interpreted as error, skipping quietly.
+		+Added remember last output and error log path configuration.
+		+CLI mode: Progress dialog now stays on top.
+		+CLI mode: Added version text for progress dialog.
+		+CLI mode: Added icon for progress dialog.
+		+Added error counter.
+		+Fixed some error mesages.
+		+Added starting new block with Keyframe (avoids some of frame corruptions.)
+		+Fixed more wxFFile->Eof()'s exception handler.
+
+Version 0.26:		13/11/2006 // one of second anniversary of mine death days
+		+CLI mode: Removed second instance check for CLI mode.
+		+CLI mode: Added cancel button for Progress bar.
+		+Added more wxFFile->Eof()'s exception handler.
+		+Fixed WXGTK font size forced to 8 at main GUI code.
+
+Version 0.25:		13/08/2006
+		+Fixed Avi Files which has no Sound, doesn't kills program anymore.
+		+CLI mode: lock file removal when unacceptable flag is entered.
+		+CLI mode: --help options text fixed/updated.
+		+CLI mode: Execute directly if input is not AVI policy added.
+		+IsAvi() function added to DivFix++Core.
+		+Truncation code moved to Truncate() function from DivFix++Core.
+		+Added wxFFile->Eof()'s exception handler because of wx bug @ wxGTK.
+		(for some rare avi files, wxFFile cannot detect end of file correctly at Linux).
+		+Fixed Add File(s) button's filter set to "*" from "*.*" for compatibility.
+		(specially for Linux, MLDonkeys' part files has no extension) - thanx ROD.
+		+CLI mode: Added "output" flags directory mode.
+		+CLI mode: Added "skip_fix" flag to execute player directly if index is proper.
+		+00db frames recognition fixed.
+		+CLI mode: Multi instance lock removed before media players spawn.
+		+CLI mode: Patch for skipped index player spawn not delete lock file.
+
+Version 0.20:		12/07/2006
+		+Linux is supported now!
+		+Cosmetic GUI changes for Linux compatibility.
+		+This file created. (Change.log :) )
+		+Fixed avi_header_fix for avi files with no DHML headers.
+		+DivFix_core cpp and h renamed to DivFix++Core now.
+		+Thread mutex mechanism implemented.
+		+Code washed with clean water, several times.
+
+Version 0.10 Beta:	18/06/2006
+		+Initial Release .

@@ -1,0 +1,23 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Fri Oct 25 23:59:02 2019
+Invocation: foremost steg10.jpg 
+Output directory: /mnt/c/Users/haapt/Programming/CTF/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: steg10.jpg
+Start: Fri Oct 25 23:59:02 2019
+Length: 274 KB (281043 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000000.jpg 	     274 KB 	          0 	 
+Finish: Fri Oct 25 23:59:02 2019
+
+1 FILES EXTRACTED
+	
+jpg:= 1
+------------------------------------------------------------------
+
+Foremost finished at Fri Oct 25 23:59:02 2019
